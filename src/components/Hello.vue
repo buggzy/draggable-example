@@ -1,5 +1,8 @@
 <template>
   <div class="fluid container">
+
+    <div class="well"> {{ eventDump }} </div>
+
     <div class="form-group form-group-lg panel panel-default">
       <div class="panel-heading">
         <h3 class="panel-title">Sortbale control</h3>
@@ -13,26 +16,22 @@
     </div>
 
     <div  class="col-md-3">
-        <draggable class="list-group" element="ul" v-model="list" :options="dragOptions" :move="onMove" @start="isDragging=true" @end="isDragging=false"> 
-          <transition-group type="transition" :name="'flip-list'">
+        <draggable class="list-group" element="ul" v-model="list" :options="dragOptions" :move="onMove" @end="onEndDrag" data-id="left-list"> 
             <li class="list-group-item" v-for="element in list" :key="element.order"> 
               <i :class="element.fixed? 'fa fa-anchor' : 'glyphicon glyphicon-pushpin'" @click=" element.fixed=! element.fixed" aria-hidden="true"></i>
               {{element.name}}
               <span class="badge">{{element.order}}</span>
             </li> 
-          </transition-group>
       </draggable>
     </div>
 
      <div  class="col-md-3">
-      <draggable element="span" v-model="list2" :options="dragOptions" :move="onMove"> 
-          <transition-group name="no" class="list-group" tag="ul">
+        <draggable class="list-group" element="ul" v-model="list2" :options="dragOptions" :move="onMove" @end="onEndDrag" data-id="right-list"> 
             <li class="list-group-item" v-for="element in list2" :key="element.order"> 
               <i :class="element.fixed? 'fa fa-anchor' : 'glyphicon glyphicon-pushpin'" @click=" element.fixed=! element.fixed" aria-hidden="true"></i>
               {{element.name}}
               <span class="badge">{{element.order}}</span>
             </li> 
-          </transition-group>
       </draggable>
     </div>
 
@@ -43,6 +42,7 @@
      <div  class="list-group col-md-3">
       <pre>{{list2String}}</pre>
     </div>
+
   </div>
 </template>
 
@@ -61,12 +61,17 @@ export default {
       list2:[],
       editable:true,
       isDragging: false,
-      delayedDragging:false
+      delayedDragging:false,
+      eventDump: false
     }
   },
   methods:{
     orderList () {
       this.list = this.list.sort((one,two) =>{return one.order-two.order; })
+    },
+    onEndDrag (ev) {
+	console.log(ev)
+        this.eventDump = { from: ev.from.dataset.id, to: ev.to.dataset.id };
     },
     onMove ({relatedContext, draggedContext}) {
       const relatedElement = relatedContext.element;
